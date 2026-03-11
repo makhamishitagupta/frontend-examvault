@@ -22,9 +22,16 @@ const Home = () => {
       try {
         const res = await fetch(`${API_BASE}/announcements/viewAll`);
         const data = await res.json();
-        setAnnouncements(data);
+        // Guard: server may return an error object (e.g. 500) instead of an array
+        if (Array.isArray(data)) {
+          setAnnouncements(data);
+        } else {
+          console.error("Unexpected announcements response:", data?.message || data);
+          setAnnouncements([]);
+        }
       } catch (error) {
         console.error("Failed to fetch announcements", error);
+        setAnnouncements([]);
       }
     };
 
