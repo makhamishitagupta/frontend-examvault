@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ResourceCard from '../components/ResourceCard';
-import { API_BASE, apiFetch } from '../utils/auth';
+import { API_BASE, apiFetch, fetchWithRetry } from '../utils/auth';
 import { FiBookOpen } from 'react-icons/fi';
 
 const Notes = () => {
@@ -21,35 +21,28 @@ const Notes = () => {
         const res = await apiFetch("/favorite");
         if (!res.ok) return;
         const data = await res.json();
-    
-        const ids = new Set(
-          data.favorites
-            .filter(f => f.itemType === "Notes")
-            .map(f => f.item._id)
-        );
-    
+        const favList = Array.isArray(data?.favorites) ? data.favorites : [];
+        const ids = new Set(favList.filter(f => f.itemType === "Notes").map(f => f.item._id));
         setFavoriteIds(ids);
       } catch {
         // backend offline, ignore
       }
     };
-  
     fetchFavorites();
   }, []);
 
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await fetch(`${API_BASE}/notes`);
+        const res = await fetchWithRetry(`${API_BASE}/notes`);
         const data = await res.json();
-        setNotes(data.notes);
+        setNotes(Array.isArray(data?.notes) ? data.notes : []);
       } catch (err) {
-        console.error("Failed to fetch notes", err);
+        setNotes([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchNotes();
   }, []);
 
