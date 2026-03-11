@@ -1,4 +1,4 @@
-export const API_BASE = "https://examvault-6tnn.onrender.com";
+export const API_BASE = import.meta.env.VITE_API_BASE || "https://examvault-6tnn.onrender.com";
 
 export const PENDING_ACTION_KEY = "examvault_pending_action";
 
